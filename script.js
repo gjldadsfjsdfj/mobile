@@ -1492,6 +1492,7 @@ canvas.addEventListener('click', handleMouseClick);
 const leftBtn = document.getElementById('left-btn');
 const rightBtn = document.getElementById('right-btn');
 const jumpBtn = document.getElementById('jump-btn');
+const crouchBtn = document.getElementById('crouch-btn');
 const shootBtn = document.getElementById('shoot-btn');
 const dashBtn = document.getElementById('dash-btn');
 const ultimateBtn = document.getElementById('ultimate-btn');
@@ -1510,6 +1511,10 @@ function handleTouchStart(e) {
             break;
         case 'jump-btn':
             player.jump();
+            break;
+        case 'crouch-btn':
+            keys.down = true;
+            player.crouch(true);
             break;
         case 'shoot-btn':
             player.shoot();
@@ -1550,18 +1555,23 @@ function handleTouchEnd(e) {
         keys.left = false;
     } else if (targetId === 'right-btn') {
         keys.right = false;
+    } else if (targetId === 'crouch-btn') {
+        keys.down = false;
+        player.crouch(false);
     }
 }
 
 leftBtn.addEventListener('touchstart', handleTouchStart, { passive: false });
 rightBtn.addEventListener('touchstart', handleTouchStart, { passive: false });
 jumpBtn.addEventListener('touchstart', handleTouchStart, { passive: false });
+crouchBtn.addEventListener('touchstart', handleTouchStart, { passive: false });
 shootBtn.addEventListener('touchstart', handleTouchStart, { passive: false });
 dashBtn.addEventListener('touchstart', handleTouchStart, { passive: false });
 ultimateBtn.addEventListener('touchstart', handleTouchStart, { passive: false });
 
 leftBtn.addEventListener('touchend', handleTouchEnd, { passive: false });
 rightBtn.addEventListener('touchend', handleTouchEnd, { passive: false });
+crouchBtn.addEventListener('touchend', handleTouchEnd, { passive: false });
 
 // --- Canvas Resizing --- 
 function resizeCanvas() {
