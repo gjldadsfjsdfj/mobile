@@ -1463,7 +1463,7 @@ function handleMouseClick(e) {
                 player.equippedUltimate = id;
             }
         });
-        const villageButton = { x: STAGE_WIDTH / 2 - 75, y: STAGE_HEIGHT - 80, width: 150, height: 40 };
+        const villageButton = { x: STAGE_WIDTH - 170, y: 20, width: 150, height: 40 }; // Positioned top right
         if(isColliding(mousePos, villageButton)) goToVillage();
 
     } else if (gameState === 'stage' && isColliding(mousePos, { x: STAGE_WIDTH - 120, y: 10, width: 110, height: 30 })) {
@@ -1852,12 +1852,13 @@ function drawMenu() {
     ctx.textAlign = 'center';
 
     // 마을 가기 버튼
-    const villageButton = { x: STAGE_WIDTH / 2 - 75, y: STAGE_HEIGHT - 80, width: 150, height: 40 };
+    const villageButton = { x: STAGE_WIDTH - 170, y: 20, width: 150, height: 40 }; // Positioned top right
     ctx.fillStyle = '#8f8';
     ctx.fillRect(villageButton.x, villageButton.y, villageButton.width, villageButton.height);
     ctx.fillStyle = 'black';
     ctx.font = '20px Arial';
-    ctx.fillText('마을로 가기', STAGE_WIDTH / 2, STAGE_HEIGHT - 55);
+    ctx.textAlign = 'center'; // Center text on the button
+    ctx.fillText('마을로 가기', villageButton.x + villageButton.width / 2, villageButton.y + 25);
 
     ctx.textAlign = 'left';
 }
