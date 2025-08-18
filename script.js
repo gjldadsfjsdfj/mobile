@@ -10,6 +10,15 @@ const registerBtn = document.getElementById('register-btn');
 function showGame() {
     loginContainer.style.display = 'none';
     gameContainer.style.display = 'block';
+
+    // Try to lock screen orientation and go fullscreen
+    try {
+        document.body.requestFullscreen();
+        screen.orientation.lock('landscape');
+    } catch (error) {
+        console.warn('Screen orientation lock or fullscreen failed:', error);
+    }
+
     gameLoop(); // Start the game
 }
 

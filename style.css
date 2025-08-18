@@ -105,3 +105,34 @@ button:hover {
     color: white;
     user-select: none; /* Prevent text selection */
 }
+
+#rotate-device-message {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    color: #fff;
+    font-size: 24px;
+    text-align: center;
+    padding-top: 50%;
+    z-index: 100;
+}
+
+@media (orientation: portrait) {
+    #game-container {
+        transform: rotate(90deg);
+        transform-origin: center;
+        width: 100vh;
+        height: 100vw;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(90deg);
+    }
+    #rotate-device-message {
+        display: block;
+    }
+}
