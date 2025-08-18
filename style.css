@@ -106,6 +106,16 @@ button:hover {
     user-select: none; /* Prevent text selection */
 }
 
+#fullscreen-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    z-index: 20;
+}
+
 #rotate-device-message {
     display: none;
     position: absolute;

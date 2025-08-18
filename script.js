@@ -1505,6 +1505,17 @@ const crouchBtn = document.getElementById('crouch-btn');
 const shootBtn = document.getElementById('shoot-btn');
 const dashBtn = document.getElementById('dash-btn');
 const ultimateBtn = document.getElementById('ultimate-btn');
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+fullscreenBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
+});
 
 function handleTouchStart(e) {
     e.preventDefault();
