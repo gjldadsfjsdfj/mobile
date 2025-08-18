@@ -117,22 +117,20 @@ button:hover {
     color: #fff;
     font-size: 24px;
     text-align: center;
-    padding-top: 50%;
     z-index: 100;
 }
 
+#rotate-device-message p {
+    margin: auto;
+}
+
 @media (orientation: portrait) {
-    #game-container {
-        transform: rotate(90deg);
-        transform-origin: center;
-        width: 100vh;
-        height: 100vw;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(90deg);
-    }
     #rotate-device-message {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #game-container {
+        display: none; /* Hide the game in portrait mode */
     }
 }
