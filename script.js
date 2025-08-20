@@ -100,10 +100,7 @@ let tutorialState = {
 };
 let endingPage = 0;
 let stage = 1;
-let ultimateGauge = 0;
-let isUltimateActive = false;
-let ultimateTimer = 0;
-const ULTIMATE_DURATION = 10; // 10초
+
 let gameTimer = 0;
 let isBossFight = false;
 let frameCount = 0;
@@ -254,14 +251,7 @@ const stages = [
 
 
 // --- 필살기 및 상점 데이터 ---
-const ultimates = {
-    damage: { name: '기본 필살기', description: '10초간 주변의 적에게 피해를 줍니다.', price: 0, purchased: true, type: 'ultimate' },
-    defense: { name: '방어막', description: '10초간 모든 피해를 막습니다.', price: 200, purchased: false, type: 'ultimate' },
-    chain_lightning: { name: '연쇄 번개', description: '가까운 적 5명에게 즉시 번개 피해를 줍니다.', price: 500, purchased: false, type: 'ultimate' },
-    time_warp: { name: '시간 왜곡장', description: '10초간 주변의 적과 투사체를 느리게 만듭니다.', price: 700, purchased: false, type: 'ultimate' },
-    vampiric_aura: { name: '흡혈 오라', description: '10초간 적을 공격 시 체력을 회복합니다.', price: 800, purchased: false, type: 'ultimate' },
-    teleport: { name: '순간 이동', description: '바라보는 방향으로 빠르게 순간이동합니다.', price: 1000, purchased: false, type: 'ultimate' },
-};
+
 
 const shopConsumables = {
     potion: { id: 'potion', name: '회복 아이템', price: 50, type: 'consumable' }
@@ -295,7 +285,7 @@ const player = {
     inventory: {
         potions: 0,
     },
-    equippedUltimate: 'damage',
+    
     enemyKillCount: 0,
     isDashing: false,
     dashTimer: 0,
@@ -314,16 +304,7 @@ const player = {
             ctx.shadowBlur = 30;
         }
 
-        // 필살기 오라 효과
-        if (isUltimateActive && this.equippedUltimate === 'damage') {
-            ctx.globalAlpha = 0.5;
-            ctx.fillStyle = 'red';
-            const auraRadius = 75 + Math.sin(frameCount * 0.3) * 10;
-            ctx.beginPath();
-            ctx.arc(centerX, this.y + this.height / 2, auraRadius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalAlpha = 1.0;
-        }
+        
 
 
         if (this.isInvincible && Math.floor(this.invincibleTimer / 5) % 2 === 0) {
@@ -394,14 +375,7 @@ const player = {
         ctx.fillStyle = '#FFFFFF';
         ctx.font = '15px Arial';
         ctx.fillText('T', centerX - 4, hatY - 5);
-        if (isUltimateActive) {
-            ctx.fillStyle = 'yellow';
-            ctx.beginPath();
-            ctx.arc(centerX, this.y - 30, 8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowColor = 'yellow';
-            ctx.shadowBlur = 20;
-        }
+        
         ctx.globalAlpha = 1.0;
         ctx.shadowBlur = 0;
     },
@@ -535,7 +509,7 @@ const player = {
         });
     },
     takeDamage() {
-        if (!this.isInvincible && !(isUltimateActive && this.equippedUltimate === 'defense')) {
+        if (!this.isInvincible) {
             this.hp--;
             this.isInvincible = true;
             this.invincibleTimer = 120;
@@ -1389,28 +1363,7 @@ function handleKeyDown(e) {
     if (key === 'e') keys.e = true;
     if (key === 'p') player.usePotion();
     if (key === 'b') keys.b = true;
-    if (key === 'm') {
-        if ((gameState === 'stage' || gameState === 'tutorial') && ultimateGauge >= 100 && !isUltimateActive) {
-            isUltimateActive = true;
-            ultimateTimer = ULTIMATE_DURATION;
-            if (player.equippedUltimate === 'teleport') {
-                const teleportDistance = 200;
-                player.x += (player.direction === 'right' ? teleportDistance : -teleportDistance);
-                player.isInvincible = true;
-                player.invincibleTimer = 30;
-                isUltimateActive = false;
-                ultimateGauge = 0;
-            } else if (player.equippedUltimate === 'chain_lightning') {
-                let targets = enemies.sort((a, b) => Math.abs(a.x - player.x) - Math.abs(b.x - player.x)).slice(0, 5);
-                targets.forEach(t => {
-                    const index = enemies.indexOf(t);
-                    if(index > -1) enemies.splice(index, 1);
-                });
-                isUltimateActive = false;
-                ultimateGauge = 0;
-            }
-        }
-    }
+    
 }
 function handleKeyUp(e) {
     const key = e.key.toLowerCase();
@@ -1425,8 +1378,19 @@ document.addEventListener('keyup', handleKeyUp);
 
 function handleMouseClick(e) {
     const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left, mouseY = e.clientY - rect.top;
-    const mousePos = { x: mouseX, y: mouseY, width: 1, height: 1 };
+    let mouseX = e.clientX - rect.left;
+    let mouseY = e.clientY - rect.top;
+
+    // 화면 변환으로 인해 마우스 좌표를 역변환해야 합니다.
+    // ctx.transform(a, b, c, d, e, f)
+    const a = 1, b = 0, c = -0.2, d = 0.5, e_trans = 0, f_trans = 200;
+    const det = a * d - b * c;
+    
+    // 역행렬을 사용하여 좌표 변환
+    const originalMouseX = (d / det) * mouseX + (-c / det) * mouseY + (c * f_trans - d * e_trans) / det;
+    const originalMouseY = (-b / det) * mouseX + (a / det) * mouseY + (b * e_trans - a * f_trans) / det;
+
+    const mousePos = { x: originalMouseX, y: originalMouseY, width: 1, height: 1 };
 
     if (gameState === 'ending') {
         endingPage++;
@@ -1469,7 +1433,6 @@ function handleMouseClick(e) {
     } else if (gameState === 'stage' && isColliding(mousePos, { x: STAGE_WIDTH - 120, y: 10, width: 110, height: 30 })) {
         goToVillage();
     } else if (gameState === 'village') {
-        if (isColliding(mousePos, { x: 20, y: 10, width: 120, height: 30 })) goToMenu();
         if (isColliding(mousePos, { x: STAGE_WIDTH - 140, y: 10, width: 120, height: 30 })) goToStage();
     }
 
@@ -1481,15 +1444,7 @@ function handleMouseClick(e) {
         if(isColliding(mousePos, potionButton)) buyItem(potion);
         itemY += 60;
 
-        // 필살기 구매
-        Object.keys(ultimates).forEach(id => {
-            const ult = ultimates[id];
-            if (ult.price > 0 && !ult.purchased) {
-                const ultButton = { x: 250, y: itemY, width: 300, height: 30 };
-                if (isColliding(mousePos, ultButton)) buyItem(ult, id);
-                itemY += 40;
-            }
-        });
+        
     } else if (activeUI === 'quest') {
         const acceptButton = { x: 350, y: 280, width: 100, height: 30 };
         if (isColliding(mousePos, acceptButton)) acceptQuest();
@@ -1542,28 +1497,7 @@ function handleTouchStart(e) {
         case 'dash-btn':
             player.dash();
             break;
-        case 'ultimate-btn':
-             if ((gameState === 'stage' || gameState === 'tutorial') && ultimateGauge >= 100 && !isUltimateActive) {
-                isUltimateActive = true;
-                ultimateTimer = ULTIMATE_DURATION;
-                 if (player.equippedUltimate === 'teleport') {
-                    const teleportDistance = 200;
-                    player.x += (player.direction === 'right' ? teleportDistance : -teleportDistance);
-                    player.isInvincible = true;
-                    player.invincibleTimer = 30;
-                    isUltimateActive = false;
-                    ultimateGauge = 0;
-                } else if (player.equippedUltimate === 'chain_lightning') {
-                    let targets = enemies.sort((a, b) => Math.abs(a.x - player.x) - Math.abs(b.x - player.x)).slice(0, 5);
-                    targets.forEach(t => {
-                        const index = enemies.indexOf(t);
-                        if(index > -1) enemies.splice(index, 1);
-                    });
-                    isUltimateActive = false;
-                    ultimateGauge = 0;
-                }
-            }
-            break;
+        
 
     }
 }
@@ -1621,7 +1555,7 @@ function updateLogic() {
     }
     if (gameState === 'story') { /* No updates needed */ }
     else if (gameState === 'tutorial') updateTutorialLogic();
-    else if (gameState === 'menu') updateMenuLogic();
+    
     else if (gameState === 'stage') updateStageLogic();
     else if (gameState === 'village') updateVillageLogic();
     else if (gameState === 'reviving') { /* Do nothing */ }
@@ -1629,10 +1563,15 @@ function updateLogic() {
 }
 
 function draw() {
+    ctx.save();
     ctx.clearRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
+
+    // 땅을 내려다보는 듯한 효과를 주기 위해 화면을 변형합니다.
+    ctx.transform(1, 0, -0.2, 0.5, 0, 200);
+
     if (gameState === 'story') drawStory();
     else if (gameState === 'tutorial') drawTutorial();
-    else if (gameState === 'menu') drawMenu();
+    
     else if (gameState === 'stage') drawStage();
     else if (gameState === 'village') drawVillage();
     else if (gameState === 'reviving') drawRevivalScreen();
@@ -1640,6 +1579,8 @@ function draw() {
 
     if (activeUI === 'quest') drawQuestUI();
     else if (activeUI === 'shop') drawShopUI();
+
+    ctx.restore();
 }
 
 // --- 스토리 로직 ---
@@ -1686,15 +1627,6 @@ function startTutorial() {
 function updateTutorialLogic() {
     player.update();
 
-    // 튜토리얼 중 필살기 게이지 UI 업데이트
-    if (isUltimateActive) {
-        ultimateTimer -= 1 / 60;
-        if (ultimateTimer <= 0) {
-            isUltimateActive = false;
-            ultimateGauge = 0;
-        }
-    }
-
     switch (tutorialState.step) {
         case 0: // Move
             if (keys.left) tutorialState.movedLeft = true;
@@ -1725,27 +1657,18 @@ function updateTutorialLogic() {
             }
             if (tutorialState.shot) {
                 tutorialState.step++;
-                ultimateGauge = 100; // 필살기 게이지 채우기
                 lasers.length = 0; // 튜토리얼 레이저 정리
             }
             break;
-        case 4: // Ultimate
-            if (isUltimateActive) {
-                tutorialState.ultimateUsed = true;
-            }
-            if (tutorialState.ultimateUsed) {
-                tutorialState.step++;
-            }
-            break;
-        case 5: // Dash
+        case 4: // Dash
             if (player.isDashing) {
                 tutorialState.dashed = true;
             }
             if (tutorialState.dashed) {
                 tutorialState.step++;
-                 // 튜토리얼 완료 후 잠시 대기했다가 메뉴로 이동
+                 // 튜토리얼 완료 후 잠시 대기했다가 마을로 이동
                 setTimeout(() => {
-                    gameState = 'menu';
+                    goToVillage();
                 }, 2000);
             }
             break;
@@ -1778,24 +1701,14 @@ function drawTutorial() {
             instructionText = '완벽해요! 스페이스바를 눌러 공격해보세요.';
             break;
         case 4:
-            instructionText = '필살기 게이지가 찼습니다! M 키를 눌러 필살기를 사용하세요.';
-            break;
-        case 5:
             instructionText = '마지막으로 / 키를 눌러 대시해보세요.';
             break;
-        case 6:
-            instructionText = '튜토리얼 완료! 잠시 후 메뉴로 이동합니다.';
+        case 5:
+            instructionText = '튜토리얼 완료! 잠시 후 마을로 이동합니다.';
             break;
     }
 
     ctx.fillText(instructionText, STAGE_WIDTH / 2, 100);
-
-    // 필살기 게이지 UI
-    if (tutorialState.step === 4) {
-        ctx.fillStyle = 'gray'; ctx.fillRect(STAGE_WIDTH / 2 - 100, 150, 200, 20);
-        ctx.fillStyle = 'yellow'; ctx.fillRect(STAGE_WIDTH / 2 - 100, 150, ultimateGauge * 2, 20);
-        ctx.strokeStyle = 'white'; ctx.strokeRect(STAGE_WIDTH / 2 - 100, 150, 200, 20);
-    }
 
     ctx.textAlign = 'left';
 }
@@ -1808,60 +1721,7 @@ function drawTutorialBackground() {
 }
 
 
-// --- 메뉴 로직 ---
-function updateMenuLogic() {
-    // 메뉴에서는 특별한 로직 없음
-}
 
-function drawMenu() {
-    ctx.clearRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
-    ctx.fillStyle = '#333';
-    ctx.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
-    ctx.fillStyle = 'white';
-    ctx.font = '30px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('필살기 선택', STAGE_WIDTH / 2, 80);
-    ctx.font = '16px Arial';
-    ctx.fillText('장착할 필살기를 클릭하세요.', STAGE_WIDTH / 2, 120);
-
-    Object.keys(ultimates).forEach((id, index) => {
-        const ult = ultimates[id];
-        const ultButton = { x: 250, y: 150 + index * 60, width: 300, height: 50 };
-
-        ctx.strokeStyle = player.equippedUltimate === id ? 'yellow' : 'white';
-        ctx.lineWidth = player.equippedUltimate === id ? 4 : 2;
-        ctx.globalAlpha = ult.purchased ? 1.0 : 0.5;
-
-        ctx.strokeRect(ultButton.x, ultButton.y, ultButton.width, ultButton.height);
-
-        ctx.font = '18px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText(ult.name, ultButton.x + 10, ultButton.y + 20);
-        ctx.font = '12px Arial';
-        ctx.fillText(ult.description, ultButton.x + 10, ultButton.y + 40);
-
-        if (!ult.purchased) {
-            ctx.font = '16px Arial';
-            ctx.textAlign = 'right';
-            ctx.fillStyle = 'red';
-            ctx.fillText(`잠김`, ultButton.x + ultButton.width - 10, ultButton.y + 30);
-            ctx.fillStyle = 'white';
-        }
-        ctx.globalAlpha = 1.0;
-    });
-    ctx.textAlign = 'center';
-
-    // 마을 가기 버튼
-    const villageButton = { x: STAGE_WIDTH - 170, y: 20, width: 150, height: 40 }; // Positioned top right
-    ctx.fillStyle = '#8f8';
-    ctx.fillRect(villageButton.x, villageButton.y, villageButton.width, villageButton.height);
-    ctx.fillStyle = 'black';
-    ctx.font = '20px Arial';
-    ctx.textAlign = 'center'; // Center text on the button
-    ctx.fillText('마을로 가기', villageButton.x + villageButton.width / 2, villageButton.y + 25);
-
-    ctx.textAlign = 'left';
-}
 
 // --- 스테이지 로직 ---
 function updateStageLogic() {
@@ -1902,9 +1762,6 @@ function updateStageLogic() {
     player.update();
 
     let speedMultiplier = 1;
-    if (isUltimateActive && player.equippedUltimate === 'time_warp') {
-        speedMultiplier = 0.3;
-    }
 
     checkStageCollisions();
 
@@ -1964,21 +1821,7 @@ function updateStageLogic() {
         if (o.x < -o.width || o.x > STAGE_WIDTH) obstacles.splice(i, 1);
     }
 
-    if (isUltimateActive) {
-        ultimateTimer -= 1 / 60;
-        if (player.equippedUltimate === 'damage') {
-             for (let i = enemies.length - 1; i >= 0; i--) {
-                const enemy = enemies[i];
-                const dx = player.x - enemy.x;
-                const dy = player.y - enemy.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 150) {
-                    enemies.splice(i, 1);
-                }
-            }
-        }
-        if (ultimateTimer <= 0) { isUltimateActive = false; ultimateGauge = 0; }
-    }
+    
 
     // Update particles
     for (let i = particles.length - 1; i >= 0; i--) {
@@ -1998,13 +1841,9 @@ function checkStageCollisions() {
         const laser = lasers[i];
         for (let j = enemies.length - 1; j >= 0; j--) {
             if (isColliding(laser, enemies[j])) {
-                if (isUltimateActive && player.equippedUltimate === 'vampiric_aura') {
-                    player.hp = Math.min(player.maxHp, player.hp + 1);
-                }
                 createSparkEffect(laser.x, laser.y); // 스파크 효과
                 enemies.splice(j, 1);
                 lasers.splice(i, 1);
-                ultimateGauge = Math.min(100, ultimateGauge + 10);
                 player.coins += 10;
                 playSound('coin');
                 player.enemyKillCount++;
@@ -2328,12 +2167,7 @@ function drawStageUI() {
     ctx.fillText(`스테이지: ${stage}`, 20, 90);
     ctx.fillText(`포션: ${player.inventory.potions} (P 키)`, 20, 120);
 
-    // 필살기 게이지
-    ctx.fillStyle = 'gray'; ctx.fillRect(20, 140, 200, 20);
-    ctx.fillStyle = 'yellow'; ctx.fillRect(20, 140, ultimateGauge * 2, 20);
-    ctx.strokeStyle = 'white'; ctx.strokeRect(20, 140, 200, 20);
-    ctx.fillStyle = 'white'; ctx.font = '14px Arial';
-    ctx.fillText('필살기 (M)', 230, 155);
+    
 
     // 보스 HP
     if (isBossFight && boss) {
@@ -2403,11 +2237,9 @@ function drawVillage() {
 
     // 메뉴/스테이지 이동 버튼
     ctx.fillStyle = '#aaa';
-    ctx.fillRect(20, 10, 120, 30);
     ctx.fillRect(STAGE_WIDTH - 140, 10, 120, 30);
     ctx.fillStyle = 'black';
     ctx.font = '16px Arial';
-    ctx.fillText('필살기 메뉴 가기', 25, 30);
     ctx.fillText('스테이지 가기', STAGE_WIDTH - 130, 30);
 }
 
@@ -2462,22 +2294,7 @@ function drawShopUI() {
     ctx.fillText(`${potion.name} - ${potion.price} 코인`, 260, itemY + 20);
     itemY += 60;
 
-    // 필살기
-    ctx.font = '20px Arial';
-    ctx.fillText('필살기', 250, itemY);
-    itemY += 20;
-    Object.keys(ultimates).forEach(id => {
-        const ult = ultimates[id];
-        if (ult.price > 0) { // 가격이 0 이상인 것만 표시
-            ctx.globalAlpha = ult.purchased ? 0.5 : 1.0;
-            ctx.strokeRect(250, itemY, 300, 30);
-            ctx.font = '16px Arial';
-            const text = ult.purchased ? `${ult.name} (보유중)` : `${ult.name} - ${ult.price} 코인`;
-            ctx.fillText(text, 260, itemY + 20);
-            itemY += 40;
-            ctx.globalAlpha = 1.0;
-        }
-    });
+    
 
     ctx.textAlign = 'center';
 }
@@ -2965,10 +2782,7 @@ function goToVillage() {
     stopBGM();
 }
 
-function goToMenu() {
-    gameState = 'menu';
-    stopBGM();
-}
+
 
 function goToStage() {
     gameState = 'stage';
@@ -2992,9 +2806,6 @@ function buyItem(item, id) {
         player.coins -= item.price;
         if (item.type === 'consumable') {
             if (item.id === 'potion') player.inventory.potions++;
-            alert(`${item.name}을(를) 구매했습니다.`);
-        } else if (item.type === 'ultimate') {
-            ultimates[id].purchased = true;
             alert(`${item.name}을(를) 구매했습니다.`);
         }
     } else {
