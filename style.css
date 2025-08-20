@@ -1,17 +1,20 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%; /* Ensure html and body take full height */
+    width: 100%; /* Ensure html and body take full width */
+    overflow: hidden;
+}
+
 body {
     background-color: #1a1a1a;
     color: #ffffff;
     font-family: 'Courier New', Courier, monospace;
     text-align: center;
-    margin: 0;
-    padding: 0;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Keep this for vertical centering of login/game container */
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    width: 100vw; /* Added to ensure body takes full width */
-    overflow: hidden; /* Prevent scrolling */
 }
 
 h1 {
@@ -45,20 +48,19 @@ canvas {
 
 #game-container {
     position: relative;
-    /* Removed width: 100vw; height: 100vh; */
-    width: 100%; /* Make it fill its constrained parent */
-    height: 100%; /* Make it fill its constrained parent */
-    max-width: 100vw; /* Constrain to viewport width */
-    max-height: 100vh; /* Constrain to viewport height */
+    width: 100%; /* Fill available width */
+    height: 100%; /* Fill available height */
+    max-width: 800px; /* Max width of the game content */
+    max-height: 500px; /* Max height of the game content */
+    aspect-ratio: 800 / 500; /* Maintain aspect ratio */
     padding: 0;
     border: none;
     background: none;
     box-shadow: none;
-    display: flex; /* Use flex to help layout canvas */
-    align-items: center; /* Center canvas horizontally */
-    justify-content: center; /* Center canvas vertically */
-    aspect-ratio: 800 / 500; /* Maintain aspect ratio */
-    /* Removed flex-direction: column; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto; /* Center it if it doesn't fill the parent */
 }
 
 
