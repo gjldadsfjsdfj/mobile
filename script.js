@@ -1520,15 +1520,8 @@ crouchBtn.addEventListener('touchend', handleTouchEnd, { passive: false });
 
 // --- Canvas Resizing --- 
 function resizeCanvas() {
-    const gameContainer = document.getElementById('game-container');
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    gameContainer.style.width = width + 'px';
-    gameContainer.style.height = height + 'px';
-
-    canvas.width = 800; // Keep internal resolution
-    canvas.height = 600;
+    canvas.width = 800;
+    canvas.height = 500;
 }
 
 window.addEventListener('resize', resizeCanvas);
