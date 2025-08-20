@@ -410,9 +410,13 @@ const player = {
                 if (keys.right) this.velocity += 1;
                 this.velocity = Math.max(-currentSpeed, Math.min(currentSpeed, this.velocity));
             } else {
-                this.velocity = 0;
-                if (keys.left) this.velocity = -currentSpeed;
-                if (keys.right) this.velocity = currentSpeed;
+                if (keys.left) {
+                    this.velocity = -currentSpeed;
+                } else if (keys.right) {
+                    this.velocity = currentSpeed;
+                } else {
+                    this.velocity = 0; // No movement keys pressed, stop
+                }
             }
             
             this.x += this.velocity;
