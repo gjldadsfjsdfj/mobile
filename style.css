@@ -146,6 +146,26 @@ button:hover {
     margin: auto;
 }
 
+#desktop-message {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    color: #fff;
+    font-size: 24px;
+    text-align: center;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+}
+
+#desktop-message p {
+    margin: auto;
+}
+
 @media (orientation: portrait) {
     #rotate-device-message {
         display: flex;
@@ -157,6 +177,14 @@ button:hover {
     }
 }
 
+@media (min-width: 768px) {
+    #game-container, #login-container, #rotate-device-message {
+        display: none !important; /* Hide game and rotate message on larger screens */
+    }
+    #desktop-message {
+        display: flex; /* Show desktop message */
+    }
+}
 
 @media (max-width: 800px) {
     #login-container {
