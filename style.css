@@ -10,6 +10,7 @@ body {
     align-items: center;
     justify-content: center;
     height: 100vh;
+    width: 100vw; /* Added to ensure body takes full width */
     overflow: hidden; /* Prevent scrolling */
 }
 
@@ -44,8 +45,11 @@ canvas {
 
 #game-container {
     position: relative;
-    width: 100vw;
-    height: 100vh;
+    /* Removed width: 100vw; height: 100vh; */
+    width: 100%; /* Make it fill its constrained parent */
+    height: 100%; /* Make it fill its constrained parent */
+    max-width: 100vw; /* Constrain to viewport width */
+    max-height: 100vh; /* Constrain to viewport height */
     padding: 0;
     border: none;
     background: none;
@@ -54,8 +58,6 @@ canvas {
     align-items: center; /* Center canvas horizontally */
     justify-content: center; /* Center canvas vertically */
     aspect-ratio: 800 / 500; /* Maintain aspect ratio */
-    max-width: 100%; /* Ensure it doesn't overflow */
-    max-height: 100%; /* Ensure it doesn't overflow */
     /* Removed flex-direction: column; */
 }
 
