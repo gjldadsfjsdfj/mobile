@@ -1567,7 +1567,7 @@ function draw() {
     ctx.clearRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
 
     // 땅을 내려다보는 듯한 효과를 주기 위해 화면을 변형합니다.
-    ctx.transform(1, 0, -0.2, 0.5, 0, 200);
+    // ctx.transform(1, 0, -0.2, 0.5, 0, 200);
 
     if (gameState === 'story') drawStory();
     else if (gameState === 'tutorial') drawTutorial();
