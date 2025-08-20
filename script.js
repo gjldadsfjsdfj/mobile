@@ -1381,16 +1381,7 @@ function handleMouseClick(e) {
     let mouseX = e.clientX - rect.left;
     let mouseY = e.clientY - rect.top;
 
-    // 화면 변환으로 인해 마우스 좌표를 역변환해야 합니다.
-    // ctx.transform(a, b, c, d, e, f)
-    const a = 1, b = 0, c = -0.2, d = 0.5, e_trans = 0, f_trans = 200;
-    const det = a * d - b * c;
-    
-    // 역행렬을 사용하여 좌표 변환
-    const originalMouseX = (d / det) * mouseX + (-c / det) * mouseY + (c * f_trans - d * e_trans) / det;
-    const originalMouseY = (-b / det) * mouseX + (a / det) * mouseY + (b * e_trans - a * f_trans) / det;
-
-    const mousePos = { x: originalMouseX, y: originalMouseY, width: 1, height: 1 };
+    const mousePos = { x: mouseX, y: mouseY, width: 1, height: 1 };
 
     if (gameState === 'ending') {
         endingPage++;
